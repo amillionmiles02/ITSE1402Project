@@ -85,7 +85,11 @@ int main()
                 if (myhome.userLogin())
                 {
                     //success
-                    cout << "You are in!" << endl;
+                    cout << "Login successful! Press Enter to continue..." << endl;
+                    cin.get();
+                    cout << endl;
+
+                    mainMenu();
                 }
                 else
                 {
