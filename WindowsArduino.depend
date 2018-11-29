@@ -1,0 +1,38 @@
+# depslib dependency file v1.0
+1543525661 source:c:\users\test-user\desktop\onedrive_2_11-29-2018\arduinowin.cpp
+	<windows.h>
+	<iostream>
+	<string>
+
+1543525661 source:c:\users\test-user\desktop\onedrive_2_11-29-2018\home.cpp
+	<iostream>
+	<string>
+	<fstream>
+	<vector>
+	"user.cpp"
+
+1543525661 c:\users\test-user\desktop\onedrive_2_11-29-2018\user.cpp
+	<iostream>
+	<string>
+
+1543525661 source:c:\users\test-user\desktop\onedrive_2_11-29-2018\user.cpp
+	<iostream>
+	<string>
+
+1543528409 source:c:\users\test-user\desktop\onedrive_2_11-29-2018\main.cpp
+	"home.cpp"
+	"arduinoWin.cpp"
+	<dos.h>
+
+1543525661 c:\users\test-user\desktop\onedrive_2_11-29-2018\home.cpp
+	<iostream>
+	<string>
+	<fstream>
+	<vector>
+	"user.cpp"
+
+1543525661 c:\users\test-user\desktop\onedrive_2_11-29-2018\arduinowin.cpp
+	<windows.h>
+	<iostream>
+	<string>
+

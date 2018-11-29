@@ -32,7 +32,10 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="arduinoWin.cpp" />
+		<Unit filename="home.cpp" />
 		<Unit filename="main.cpp" />
+		<Unit filename="user.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

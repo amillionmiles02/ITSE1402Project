@@ -22,7 +22,7 @@ namespace home {
         User users[HOME_SIZE];
 
         //current user logged into the home
-        User currentUser;
+        int currentUser;
 
         //--status of the house
         string name;
@@ -81,7 +81,7 @@ namespace home {
 
         //--------------------------------------------------
         //validate an user
-        User validateUser(string username)
+        int validateUser(string username)
         {
             //user not active to return in case there is not user with that username
             User no_user;
@@ -96,12 +96,12 @@ namespace home {
                         //validate the user (by calling a User method named validateUser(username);)
                         if(users[i].validateUser(username))
                             //if the returned value is true return the valid user
-                            return users[i];
+                            return i;
                     }
                 }
             }
             //return the not active user
-            return no_user;
+            return -1;
         }
 
         //--------------------------------------------------
@@ -125,6 +125,9 @@ namespace home {
             ifstream dataFile;
 
             dataFile.open(DATA_FILE);
+            
+            if (!dataFile)
+                return false;
 
             if(dataFile)
             {
@@ -230,12 +233,12 @@ namespace home {
             cout << "Username: ";
             cin >> username;
 
-            User current_user;
+            int current_user;
             current_user = validateUser(username);
 
             currentUser = current_user;
 
-            if(current_user.isActive)
+            if(users[current_user].isActive)
                 return true;
             return false;
         }
@@ -243,7 +246,7 @@ namespace home {
         void userLogoff()
         {
             User emptyUser;
-            currentUser = emptyUser;
+            currentUser = -1;
         }
 
         //house status
@@ -313,35 +316,6 @@ namespace home {
         }
 
 
-        //Main menu
-        void mainMenu()
-        {
-            char letter = 65;
-            cout << "\n--This is the main menu--" << endl;
-            switch (currentUser.access)
-            {
-                case 5:
-                    cout << letter++ << "- Option 5" << endl;
-                case 4:
-                    cout << letter++ << "- Option 4" << endl;
-                case 3:
-                    cout << letter++ << "- Option 3" << endl;
-                case 2:
-                    cout << letter++ << "- Option 2" << endl;
-                case 1:
-                    cout << letter++ << "- Option 1" << endl;
-                    break;
-                default:
-                    cout << "ERROR" << endl;
-                    break;
-            }
-            cout << endl;
-            while (true)
-            {
-                mainMenuSelection(readSelection());
-            }
-
-        }
 
     private:
 
@@ -351,35 +325,7 @@ namespace home {
             cin.ignore(10000, '\n');
         }
 
-        int readSelection()
-        {
-            cout << "Enter a letter: ";
-            int selection = 0;
-            char input;
-            cin >> input;
 
-            if(input >= 65 && input <= 90)
-                selection = input - 64;
-            else if (input >= 97 && input <= 122)
-                selection = input - 96;
-            else
-                selection = 0;
-
-            clearInput();
-
-            return selection;
-        }
-
-        void mainMenuSelection(int selection)
-        {
-            if (selection == 0)
-                cout << "Bad input" << endl << endl;
-            else
-            {
-                int realSelection = currentUser.access + 1 - selection;
-                cout << "You selected Option " << realSelection << endl << endl;
-            }
-        }
 
     };
 }
