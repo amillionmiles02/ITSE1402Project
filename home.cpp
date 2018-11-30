@@ -31,6 +31,7 @@ namespace home {
 
         //LIGHTS
         vector<bool> lights;
+        vector<string> rooms;
 
 
         //default constructor
@@ -83,8 +84,6 @@ namespace home {
         //validate an user
         int validateUser(string username)
         {
-            //user not active to return in case there is not user with that username
-            User no_user;
             for (int i = 0; i < HOME_SIZE; i++)
             {
                 //check only active users
@@ -125,7 +124,7 @@ namespace home {
             ifstream dataFile;
 
             dataFile.open(DATA_FILE);
-            
+
             if (!dataFile)
                 return false;
 
@@ -143,6 +142,9 @@ namespace home {
                 while (dataFile >> status)
                 {
                     lights.insert(lights.end(), status);
+                    string room_name;
+                    dataFile >> room_name;
+                    rooms.push_back(room_name);
                     i++;
                 }
             }
@@ -150,6 +152,7 @@ namespace home {
             dataFile.close();
             //open users
             ifstream userFile;
+
             //open the data file
             userFile.open(USER_FILE);
 
@@ -217,9 +220,10 @@ namespace home {
             dataFile << isOpened << endl;
             dataFile << temperature << endl;
 
-            for (bool l : lights)
+            for (unsigned int i = 0; i < lights.size(); i++)
             {
-                dataFile << l << endl;
+                dataFile << lights[i] << endl;
+                dataFile << rooms[i] << endl;
             }
         }
 

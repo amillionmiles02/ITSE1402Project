@@ -6,6 +6,8 @@ using namespace std;
 using namespace home;
 
 //GLOBALS
+const int MAX_LIGHTS = 9;
+
 arduino::Board myboard;
 
 home::Home myhome;
@@ -31,6 +33,12 @@ void adminArea();
 
 void mainMenu();
 //main menu area
+
+void printUserList();
+//prints the list of all users
+
+void roomsSetup();
+//for setting up lights
 
 int main()
 {
@@ -86,6 +94,7 @@ int main()
                 {
                     //success
                     cout << "Login successful! Press Enter to continue..." << endl;
+                    clearInput();
                     cin.get();
                     cout << endl;
 
@@ -185,7 +194,7 @@ void disconnectArduino()
 {
     myboard.Send("#A0");
     myboard.Send("#T30");
-    for (int i = 0; i < myhome.lights.size(); i++)
+    for (unsigned int i = 0; i < myhome.lights.size(); i++)
     {
         myboard.Send("#L" + to_string(i+1) + "0");
     }
@@ -229,13 +238,266 @@ void adminArea()
     if (password == myhome.name)
     {
         //success
-        cout << "SUCCESS" << endl;
+        cout << "\n--- WELCOME TO THE ADMINISTRATION AREA ---" << endl << endl;
+        int selection;
+
+        //input variables
+        string text_input;
+        string text_input_2;
+        char char_input;
+
+        bool found;
+
+
+        do
+        {
+            cout << "--- MENU ---" << endl << endl;
+            cout << "1 - Room settings" << endl;
+            cout << "2 - User list" << endl;
+            cout << "3 - Create user" << endl;
+            cout << "4 - Delete user" << endl;
+            cout << "5 - Change user password" << endl;
+            cout << "6 - Change administration password" << endl;
+            cout << "7 - Exit" << endl << endl;
+
+            cout << "Your choice: ";
+            cin >> selection;
+            clearInput();
+
+            switch (selection)
+            {
+            case 1:
+                //rooms
+                roomsSetup();
+                break;
+
+            case 2:
+                //user list
+                printUserList();
+                cout << "Press Enter to go back to menu..." << endl;
+                cin.get();
+                break;
+
+
+            case 3:
+                //new user
+                cout << "Enter new username: ";
+                cin >> text_input;
+                clearInput();
+
+                found = false;
+
+                for (User u : myhome.users)
+                    if (u.isActive && u.username == text_input)
+                        found = true;
+
+                if (found)
+                    cout << "User already exists. Press Enter to go back to menu..." << endl;
+                else
+                {
+                    cout << "Enter a new password for " << text_input << " :";
+                    cin >> text_input_2;
+                    clearInput();
+
+                    if(myhome.createUser(text_input, text_input_2))
+                    {
+                        cout << "New user created. Press Enter to go back to menu..." << endl;
+                        myhome.save();
+                    }
+                    else
+                    {
+                        cout << "Smart Home supports up to 15 users. Eliminate an user to create a new one." << endl;
+                        cout << "Press ENter to go back to menu..." << endl;
+                    }
+
+                }
+                cin.get();
+                break;
+
+
+            case 4:
+                //delete user
+                cout << "Press Enter to display list of users and then enter the username to delete..." << endl;
+                cin.get();
+                printUserList();
+
+                cout << "Enter username: ";
+                cin >> text_input;
+                clearInput();
+
+                found = false;
+
+                for (int i = 0; i < myhome.HOME_SIZE; i++)
+                {
+                    if (myhome.users[i].isActive && myhome.users[i].username == text_input)
+                    {
+                        found = true;
+
+                        cout << "Are you sure you want to delete user " << myhome.users[i].username << "? (Y/N)" << endl;
+                        cout << "Your choice: ";
+                        cin >> char_input;
+                        clearInput();
+
+                        if (char_input == 'y' || char_input == 'Y')
+                        {
+                            myhome.users[i].isActive = false;
+                            myhome.save();
+
+                            cout << "User deleted. ";
+                        }
+
+                        cout << "Press Enter to go back to menu..." << endl;
+                    }
+
+
+                }
+
+                if(!found)
+                    cout << "Invalid username. Press Enter to go to menu..." << endl;
+                cin.get();
+
+                break;
+
+
+            case 5:
+                //change user password
+                cout << "Press Enter to display list of users and then enter the username to change the password..." << endl;
+                cin.get();
+                printUserList();
+
+                cout << "Enter username: ";
+                cin >> text_input;
+                clearInput();
+
+                found = false;
+
+                for (int i = 0; i < myhome.HOME_SIZE; i++)
+                {
+                    if (myhome.users[i].isActive && myhome.users[i].username == text_input)
+                    {
+                        cout << "Enter a new password: ";
+                        cin >> text_input;
+                        clearInput();
+
+                        myhome.users[i].code = text_input;
+                        myhome.save();
+
+                        found = true;
+
+                        cout << "Password changed. Press Enter to go back to menu..." << endl;
+                    }
+                }
+                if (!found)
+                    cout << "Invalid user. Press Enter to go back..." << endl;
+                cin.get();
+
+                break;
+
+
+            case 6:
+                //change admin password
+                cout << "Please, enter the current administration password: ";
+                cin >> text_input;
+                clearInput();
+
+                if (text_input == myhome.name)
+                {
+                    cout << "Please enter a new password: ";
+                    cin >> text_input;
+                    clearInput();
+
+                    myhome.name = text_input;
+                    myhome.save();
+
+                    cout << "Password successfully changed. Press Enter to continue..." << endl;
+                }
+                else
+                    cout << "Wrong password. Press Enter to go back to the menu..." << endl;
+                cin.get();
+
+                break;
+
+
+            case 7:
+                cout << "Good bye! Press Enter to go to initial menu..." << endl;
+                cin.get();
+                break;
+
+
+            default:
+                cout << "Invalid input. Press Enter to try again..." << endl;
+                cin.get();
+                break;
+            }
+        }
+        while (selection != 7);
+
     }
     else
     {
         cout << "Wrong password. Press Enter to go back..." << endl;
         cin.get();
     }
+}
+
+void printUserList()
+{
+    cout << "\nShowing all users:" << endl << endl;
+
+    int i = 1;
+    for(User u : myhome.users)
+    {
+        if (u.isActive)
+        {
+            cout << i++ << " - " << u.username << endl;
+        }
+    }
+    cout << endl;
+}
+
+//lights setup
+void roomsSetup()
+{
+    myhome.lights.clear();
+
+    myhome.rooms.clear();
+
+    int num_lights;
+
+    string room_name;
+
+    cout << "How many rooms does your house have?" << endl;
+
+    do
+    {
+        cout << "Enter a number (1 - " << MAX_LIGHTS << "): ";
+        cin >> num_lights;
+        clearInput();
+
+        if (num_lights < 1 || num_lights > MAX_LIGHTS)
+            cout << "Bad input. ";
+        else
+        {
+            cout << endl;
+            for (int i = 1; i <= num_lights; i++)
+            {
+                myhome.lights.push_back(false);
+                cout << "Enter a name for room " << i << ": ";
+                cin >> room_name;
+                clearInput();
+                myhome.rooms.push_back(room_name);
+                cout << endl;
+            }
+
+            myhome.save();
+
+            cout << "Rooms setup completed. Press Enter to go back to menu..." << endl;
+            cin.get();
+        }
+    }
+    while (num_lights < 1 || num_lights > MAX_LIGHTS);
+
+
 }
 
 //main menu area
