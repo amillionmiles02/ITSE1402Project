@@ -8,6 +8,9 @@ using namespace home;
 //GLOBALS
 const int MAX_LIGHTS = 9;
 
+const int MIN_TEMP = 30;
+const int MAX_TEMP = 130;
+
 arduino::Board myboard;
 
 home::Home myhome;
@@ -150,7 +153,7 @@ void connectArduino()
 
             if (myboard.Connect(i))
             {
-                cout << "\nTesting port " << i << "..." << endl;
+                cout << "\nDevice found on port " << i << "..." << endl;
                 Sleep(4000);
                 myboard.Send("#A1");
                 cout << "Did your smart home turn on? (Y/N)" << endl;
@@ -306,8 +309,8 @@ void adminArea()
                     }
                     else
                     {
-                        cout << "Smart Home supports up to 15 users. Eliminate an user to create a new one." << endl;
-                        cout << "Press ENter to go back to menu..." << endl;
+                        cout << "\nSmart Home supports up to 15 users. Eliminate an user to create a new one." << endl;
+                        cout << "\nPress Enter to go back to menu..." << endl;
                     }
 
                 }
@@ -491,6 +494,12 @@ void roomsSetup()
 
             myhome.save();
 
+            for (unsigned int i = 0; i < myhome.lights.size(); i++)
+            {
+                myboard.Send("#L" + to_string(i + 1) + "0");
+            }
+            initializeArduino();
+
             cout << "Rooms setup completed. Press Enter to go back to menu..." << endl;
             cin.get();
         }
@@ -503,5 +512,178 @@ void roomsSetup()
 //main menu area
 void mainMenu()
 {
+    int num_input;
+    char char_input;
+    string text_input;
 
+    do
+    {
+       cout << "\n-- MAIN MENU ---" << endl << endl;
+       cout << "1 - Entrance" << endl;
+       cout << "2 - Lights" << endl;
+       cout << "3 - Temperature" << endl;
+       cout << "4 - Change password" << endl;
+       cout << "5 - Exit" << endl << endl;
+
+       cout << "Your selection: ";
+       cin >> num_input;
+       clearInput();
+
+       switch (num_input)
+       {
+       case 1:
+           //access
+           cout << endl;
+           if (myhome.isOpened)
+           {
+               cout << "-----------------------------" << endl;
+               cout << "Your home's entrance is open" << endl;
+               cout << "-----------------------------" << endl << endl;
+               cout << "would you like to close it? (Y/N)" << endl;
+
+               cout << "Your choice: ";
+               cin >> char_input;
+               clearInput();
+
+               cout << endl;
+
+               if (char_input == 'y' || char_input == 'Y')
+               {
+                   myboard.Send(myhome.access());
+               }
+           }
+           else
+           {
+               cout << "-----------------------------" << endl;
+               cout << "Your home's entrance is closed" << endl;
+               cout << "-----------------------------" << endl << endl;
+               cout << "would you like to open it? (Y/N)" << endl;
+
+               cout << "Your choice: ";
+               cin >> char_input;
+               clearInput();
+
+               cout << endl;
+
+               if (char_input == 'y' || char_input == 'Y')
+               {
+                   myboard.Send(myhome.access());
+               }
+           }
+
+           cout << "Press Enter to go to menu..." << endl;
+           cin.get();
+           break;
+
+       case 2:
+           //lights
+           cout << "\nPlease select one of the following rooms: " << endl << endl;
+           for (unsigned int i = 0; i < myhome.lights.size(); i++)
+           {
+               cout << i+1 << " - " << myhome.rooms[i] << endl;
+           }
+
+           cout << "\nEnter a room number: ";
+           cin >> num_input;
+           clearInput();
+
+           if (num_input >= 1 && static_cast<unsigned int>(num_input) <= myhome.lights.size())
+           {
+               if (myhome.lights[num_input - 1])
+               {
+                   cout << endl;
+                   cout << "-----------------------------" << endl;
+                   cout << myhome.rooms[num_input - 1] << "'s light is on" << endl;
+                   cout << "-----------------------------" << endl << endl;
+                   cout << "Would you like to turn in off? (Y/N)" << endl;
+                   cout << "Your choice: ";
+                   cin >> char_input;
+                   clearInput();
+
+                   if (char_input == 'y' || char_input == 'Y')
+                   {
+                       myboard.Send(myhome.turnLight(num_input));
+                   }
+               }
+               else
+               {
+                   cout << endl;
+                   cout << "-----------------------------" << endl;
+                   cout << myhome.rooms[num_input - 1] << "'s light is off" << endl;
+                   cout << "-----------------------------" << endl << endl;
+                   cout << "Would you like to turn in on? (Y/N)" << endl;
+                   cout << "Your choice: ";
+                   cin >> char_input;
+                   clearInput();
+
+                   if (char_input == 'y' || char_input == 'Y')
+                   {
+                       myboard.Send(myhome.turnLight(num_input));
+                   }
+               }
+           }
+           else
+                cout << "Invalid room. ";
+           cout << "Press Enter to go back to menu..." << endl;
+           cin.get();
+           break;
+
+       case 3:
+           //temperature
+           cout << endl;
+           cout << "-----------------------------" << endl;
+           cout << "Temperature is " << myhome.temperature << " F." << endl;
+           cout << "-----------------------------" << endl << endl;
+           cout << "Enter a new temperature (" << MIN_TEMP << " - " << MAX_TEMP << " F): ";
+           cin >> num_input;
+           clearInput();
+
+           if (num_input >= MIN_TEMP && num_input <= MAX_TEMP)
+           {
+               myboard.Send(myhome.setTemperature(num_input));
+               cout << "Press Enter to go to continue..." << endl;
+           }
+           else
+                cout << "Bad input. Press Enter to go back to manu..." << endl;
+           cin.get();
+
+           break;
+
+       case 4:
+           //change password
+           cout << "Please enter your current password: ";
+           cin >> text_input;
+           clearInput();
+
+           if (text_input == myhome.users[myhome.currentUser].code)
+           {
+               cout << "Enter a new password: ";
+               cin >> text_input;
+               clearInput();
+
+               myhome.users[myhome.currentUser].code = text_input;
+               myhome.save();
+
+               cout << "Password changed. Press Enter to continue..." << endl;
+           }
+           else
+               cout << "Wrong password. Press Enter to go back to menu..." << endl;
+            cin.get();
+
+           break;
+
+       case 5:
+           //exit
+           cout << "Good bye! Press Enter to go to initial menu..." << endl;
+           cin.get();
+           break;
+
+       default:
+           //bad input
+           cout << "Bad input. Press Enter to continue..." << endl;
+           cin.get();
+           break;
+       }
+    }
+    while (num_input != 5);
 }

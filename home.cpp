@@ -282,7 +282,7 @@ namespace home {
             lights[light-1] ? lights[light-1] = false : lights[light-1] = true;
             command = "#L" + to_string(light) + to_string(lights[light-1]);
 
-            cout << "Light " << light << " is ";
+            cout << rooms[light-1] << "'s light is ";
             lights[light-1] ? cout << "on." : cout << "off.";
             cout << endl << endl;
 
