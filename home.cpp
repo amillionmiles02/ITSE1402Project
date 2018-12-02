@@ -104,19 +104,6 @@ namespace home {
         }
 
         //--------------------------------------------------
-        //Print the users list
-        void printUserList()
-        {
-            for (int i = 0; i < HOME_SIZE; i++)
-            {
-                if (users[i].isActive)
-                {
-                    cout << users[i].username << endl;
-                }
-            }
-        }
-
-        //--------------------------------------------------
         //open home from file
         bool open()
         {
@@ -251,28 +238,6 @@ namespace home {
         {
             User emptyUser;
             currentUser = -1;
-        }
-
-        //house status
-        void printHouseStatus()
-        {
-            string opened = "closed";
-            if (isOpened)
-                opened = "opened";
-
-            cout << "\nWelcome to " << name << endl;
-            cout << "\nTemperature is " << temperature << " F." << endl;
-            cout << "\nThe home's door is " << opened << endl << endl;
-
-            int room = 1;
-
-            for (int light : lights)
-            {
-                if (light)
-                    cout << "Lights in room " << room++ << " are on." << endl;
-                else
-                    cout << "Lights in room " << room++ << " are off." << endl;
-            }
         }
 
         //Turn light on/off

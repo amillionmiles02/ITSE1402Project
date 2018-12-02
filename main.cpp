@@ -1,6 +1,5 @@
 #include "home.cpp"
 #include "arduinoWin.cpp"
-#include <dos.h>
 
 using namespace std;
 using namespace home;
